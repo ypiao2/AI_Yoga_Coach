@@ -1,0 +1,32 @@
+# Dependencies and env (secrets never in image)
+node_modules/
+frontend/node_modules/
+.env
+.env.local
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+*.db
+*.sqlite
+
+# IDE, OS, logs
+.vscode/
+.idea/
+.DS_Store
+*.log
+logs/
+
+# Frontend (this image runs backend only; 256 MB limit)
+frontend/.next/
+frontend/out/
+
+# Docs and local scripts (not needed at runtime)
+docs/
+*.md

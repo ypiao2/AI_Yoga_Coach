@@ -30,7 +30,8 @@ class Config:
     # Application Settings
     DEBUG: bool = os.getenv("DEBUG", "False").lower() == "true"
     API_HOST: str = os.getenv("API_HOST", "0.0.0.0")
-    API_PORT: int = int(os.getenv("API_PORT", "8000"))
+    # Koyeb/ai-builders.space set PORT at runtime; fallback for local dev
+    API_PORT: int = int(os.getenv("PORT", os.getenv("API_PORT", "8000")))
     
     # RAG Settings
     RAG_ENABLED: bool = os.getenv("RAG_ENABLED", "True").lower() == "true"
