@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #fff5f7;
+  --surface: #ffffff;
+  --border: #fce7f3;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --accent: #ec4899;
+  --accent-soft: rgba(236, 72, 153, 0.15);
+  --accent-light: #f472b6;
+  --pink-soft: rgba(244, 114, 182, 0.1);
+  --green: #10b981;
+  --green-soft: rgba(16, 185, 129, 0.15);
+  --amber: #f59e0b;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-light); text-decoration: underline; }
+
+input, select, button {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

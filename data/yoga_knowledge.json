@@ -1,0 +1,100 @@
+[
+  {
+    "pose": "sutra_introduction",
+    "alignment": [
+      "direction",
+      "depth",
+      "purpose",
+      "personal growth",
+      "spiritual development"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "greater perspective",
+      "calm",
+      "joy",
+      "kindness"
+    ],
+    "breathing": "",
+    "modifications": ""
+  },
+  {
+    "pose": "sutra_1_ignorance",
+    "alignment": [
+      "mental discernment",
+      "detachment",
+      "spiritual knowledge",
+      "self-awareness"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "removal of ignorance",
+      "end of suffering"
+    ],
+    "breathing": "",
+    "modifications": ""
+  },
+  {
+    "pose": "sutra_2_dualism",
+    "alignment": [
+      "Sankhya dualism",
+      "Upanishadic non-dualism",
+      "atman and brahman",
+      "prakriti and purusha"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "understanding of relationships between concepts"
+    ],
+    "breathing": "",
+    "modifications": ""
+  },
+  {
+    "pose": "sutra_3_karma",
+    "alignment": [
+      "law of karma",
+      "samsara",
+      "maya"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "end of suffering",
+      "liberation from samsara"
+    ],
+    "breathing": "",
+    "modifications": ""
+  },
+  {
+    "pose": "sutra_4_energy_body",
+    "alignment": [
+      "subtle body",
+      "prana",
+      "kundalini",
+      "nadis",
+      "chakras"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "understanding of energy anatomy"
+    ],
+    "breathing": "",
+    "modifications": ""
+  },
+  {
+    "pose": "sutra_5_samadhi",
+    "alignment": [
+      "pure awareness",
+      "Moksha",
+      "true self",
+      "highest self"
+    ],
+    "contraindications": [],
+    "benefits": [
+      "liberation",
+      "enlightenment",
+      "pure consciousness"
+    ],
+    "breathing": "",
+    "modifications": ""
+  }
+]

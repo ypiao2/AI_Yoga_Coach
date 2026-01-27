@@ -1,0 +1,74 @@
+[
+  {
+    "pose": "warrior_iii",
+    "alignment": [
+      "Stand on one leg",
+      "Hinge forward from hips",
+      "Extend back leg parallel to floor",
+      "Arms can be forward, at sides, or in prayer",
+      "Keep standing leg strong and straight",
+      "Hips level"
+    ],
+    "contraindications": [
+      "Ankle injury",
+      "Knee injury",
+      "Severe balance issues",
+      "Low blood pressure"
+    ],
+    "benefits": [
+      "Improves balance",
+      "Strengthens standing leg",
+      "Core engagement",
+      "Focus and concentration"
+    ],
+    "breathing": "Steady, focused breathing. Breathe into your core.",
+    "modifications": "Use wall for support, or keep back foot on ground (warrior III prep)"
+  },
+  {
+    "pose": "half_moon",
+    "alignment": [
+      "From triangle pose, bend front knee",
+      "Place hand on floor or block",
+      "Lift back leg parallel to floor",
+      "Open hips and chest",
+      "Top arm reaches toward sky",
+      "Gaze can be down or up"
+    ],
+    "contraindications": [
+      "Neck injury",
+      "Low blood pressure",
+      "Severe balance issues"
+    ],
+    "benefits": [
+      "Opens hips",
+      "Strengthens legs",
+      "Improves balance",
+      "Stretches side body"
+    ],
+    "breathing": "Breathe deeply, finding stability in the pose",
+    "modifications": "Use block under bottom hand, or practice at wall"
+  },
+  {
+    "pose": "revolved_triangle",
+    "alignment": [
+      "From triangle pose, bring opposite hand to floor or block",
+      "Rotate torso toward front leg",
+      "Top arm reaches toward sky",
+      "Keep both legs straight",
+      "Hips squared forward"
+    ],
+    "contraindications": [
+      "Back injury",
+      "Neck injury",
+      "Pregnancy (avoid deep twists)"
+    ],
+    "benefits": [
+      "Deep twist",
+      "Stretches hamstrings",
+      "Opens shoulders",
+      "Detoxifying"
+    ],
+    "breathing": "Breathe into the twist, allowing it to deepen with each exhale",
+    "modifications": "Use block under hand, or practice with bent front knee"
+  }
+]
