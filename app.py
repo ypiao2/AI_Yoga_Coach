@@ -179,6 +179,19 @@ async def health():
     return {"status": "healthy"}
 
 
+@app.get("/api/v1/llm-status")
+async def llm_status():
+    """
+    Safe status for deployed app when logs are not available.
+    Returns only whether an LLM is configured and which provider; no secrets.
+    Example: curl https://ai-yoga-coach.ai-builders.space/api/v1/llm-status
+    """
+    return {
+        "llm_configured": _llm is not None,
+        "provider": _llm.provider_name if _llm else None,
+    }
+
+
 @app.post("/api/v1/yoga-flow", response_model=YogaFlowResponse)
 async def create_yoga_flow(request: YogaFlowRequest):
     """

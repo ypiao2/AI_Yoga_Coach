@@ -47,7 +47,12 @@ class LLMClient:
             else:
                 self._impl = "ollama"
                 self._key = None
-    
+
+    @property
+    def provider_name(self) -> str:
+        """Provider id for status only (groq, gemini, ollama). No secrets."""
+        return self._impl
+
     def generate(self, prompt: str, system_prompt: Optional[str] = None, temperature: float = 0.5) -> str:
         """
         Send prompt to LLM and return raw text.
