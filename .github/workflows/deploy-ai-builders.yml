@@ -62,6 +62,8 @@ jobs:
                 GROQ_MODEL: $model
               }
             }')
+          echo "Payload env_vars keys: $(echo "$PAYLOAD" | jq -r '.env_vars | keys | join(", ")')"
+          echo "GROQ_API_KEY is $( [ -n "$GROQ_API_KEY" ] && echo 'set (non-empty)' || echo 'EMPTY - add it in Environments → main, not repo vars' )"
           echo "Deploying..."
           HTTP=$(curl -sS -L --post301 -w "%{http_code}" -o /tmp/body -X POST "${DEPLOY_BASE_URL}/v1/deployments" \
             -H "Authorization: Bearer ${{ secrets.AI_BUILDER_TOKEN }}" \
