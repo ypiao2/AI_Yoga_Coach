@@ -17,6 +17,21 @@ jobs:
     runs-on: ubuntu-latest
     environment: main
     steps:
+      - name: Check required vars
+        env:
+          GROQ: ${{ vars.GROQ_API_KEY || secrets.GROQ_API_KEY }}
+          TOKEN: ${{ secrets.AI_BUILDER_TOKEN }}
+        run: |
+          if [ -z "$GROQ" ]; then
+            echo "::error::GROQ_API_KEY is missing. Add it in Settings → Environments → main as a Variable or Secret."
+            exit 1
+          fi
+          if [ -z "$TOKEN" ]; then
+            echo "::error::AI_BUILDER_TOKEN is missing. Add it in Settings → Environments → main as a Secret."
+            exit 1
+          fi
+          echo "GROQ_API_KEY and AI_BUILDER_TOKEN are set."
+
       - name: Deploy
         env:
           DEPLOY_BASE_URL: "https://space.ai-builders.com/backend"
@@ -24,7 +39,7 @@ jobs:
           SERVICE_NAME: "ai-yoga-coach"
           BRANCH: "main"
           PORT: "8000"
-          GROQ_API_KEY: ${{ vars.GROQ_API_KEY }}
+          GROQ_API_KEY: ${{ vars.GROQ_API_KEY || secrets.GROQ_API_KEY }}
           LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
           GROQ_MODEL: ${{ vars.GROQ_MODEL }}
         run: |
