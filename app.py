@@ -1,6 +1,8 @@
 """
 FastAPI application - Main entry point for AI Yoga Coach
 """
+import asyncio
+import json
 import logging
 from pathlib import Path
 from dotenv import load_dotenv
@@ -9,7 +11,7 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger(__name__)
@@ -359,6 +361,21 @@ def _answer_yoga_question(user_message: str) -> str:
     return "Chat requires an LLM. Set GROQ_API_KEY (or GEMINI/OPENAI) in .env to use the yoga Q&A chatbot."
 
 
+def _answer_yoga_stream(user_message: str):
+    """Yield reply chunks for streaming. Same RAG + LLM logic as _answer_yoga_question."""
+    context = rag_retriever.search_for_chat(user_message, limit=6)
+    if not context:
+        context = "(No specific pose/knowledge matched; answer from general yoga best practices.)"
+        logger.info("[Chat] LLM using built-in/general knowledge only (no RAG context for this question)")
+    else:
+        logger.info("[Chat] LLM using RAG context (retrieved knowledge + general knowledge)")
+    prompt = format_chat_user_prompt(context=context, user_message=user_message)
+    if _llm:
+        yield from _llm.generate_stream(prompt, system_prompt=CHAT_SYSTEM_PROMPT, temperature=0.4)
+    else:
+        yield "Chat requires an LLM. Set GROQ_API_KEY (or GEMINI/OPENAI) in .env to use the yoga Q&A chatbot."
+
+
 @app.post("/api/v1/chat", response_model=ChatResponse)
 async def yoga_chat(request: ChatRequest):
     """
@@ -370,6 +387,39 @@ async def yoga_chat(request: ChatRequest):
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/chat/stream")
+async def yoga_chat_stream(request: ChatRequest):
+    """
+    Streaming chat: yields Server-Sent Events (SSE) with {"chunk": "..."} so the reply appears smoothly.
+    """
+    async def event_stream():
+        loop = asyncio.get_event_loop()
+        queue: asyncio.Queue = asyncio.Queue()
+
+        def run():
+            try:
+                for chunk in _answer_yoga_stream(request.message.strip()):
+                    loop.call_soon_threadsafe(queue.put_nowait, chunk)
+            except Exception as e:
+                loop.call_soon_threadsafe(queue.put_nowait, {"error": str(e)})
+            loop.call_soon_threadsafe(queue.put_nowait, None)
+
+        loop.run_in_executor(None, run)
+        while True:
+            item = await queue.get()
+            if item is None:
+                break
+            if isinstance(item, dict) and "error" in item:
+                yield f"data: {json.dumps(item)}\n\n"
+                break
+            yield f"data: {json.dumps({'chunk': item})}\n\n"
+    return StreamingResponse(
+        event_stream(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
+    )
 
 
 # Serve frontend static files when present (single-port deploy). API stays at /api/* and /health.

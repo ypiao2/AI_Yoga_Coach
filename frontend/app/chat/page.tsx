@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
-import { chatYoga } from '@/lib/api';
+import { chatYogaStream } from '@/lib/api';
 
 // ReactMarkdown component for rendering assistant markdown (type cast for React 18 / strict JSX)
 const Markdown = ReactMarkdown as React.ComponentType<{ children?: string }>;
@@ -32,11 +32,26 @@ export default function ChatPage() {
     setLoading(true);
 
     try {
-      const { reply } = await chatYoga(text);
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }]);
+      // Stream response: add assistant message with empty content, then append chunks
+      setMessages((prev) => [...prev, { role: 'assistant', content: '' }]);
+      await chatYogaStream(text, (chunk) => {
+        setMessages((prev) => {
+          const next = [...prev];
+          const last = next[next.length - 1];
+          if (last?.role === 'assistant') {
+            next[next.length - 1] = { ...last, content: last.content + chunk };
+          }
+          return next;
+        });
+      });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong');
-      setMessages((prev) => prev.slice(0, -1));
+      setMessages((prev) => {
+        // Remove the empty assistant message we added
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant' && last.content === '') return prev.slice(0, -1);
+        return prev;
+      });
       setInput(text);
     } finally {
       setLoading(false);

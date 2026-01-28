@@ -94,3 +94,49 @@ export async function chatYoga(message: string): Promise<ChatResponse> {
   }
   return res.json();
 }
+
+/** Stream chat: call onChunk(text) for each chunk; rejects on error. */
+export async function chatYogaStream(
+  message: string,
+  onChunk: (chunk: string) => void
+): Promise<void> {
+  const base = getApiBase();
+  const res = await fetch(`${base}/api/v1/chat/stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: message.trim() }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(err.detail || 'Failed to start stream');
+  }
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No response body');
+  const dec = new TextDecoder();
+  let buf = '';
+  try {
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop() ?? '';
+      for (const line of lines) {
+        if (line.startsWith('data: ')) {
+          const raw = line.slice(6).trim();
+          if (raw === '[DONE]') continue;
+          try {
+            const o = JSON.parse(raw) as { chunk?: string; error?: string };
+            if (o.error) throw new Error(o.error);
+            if (typeof o.chunk === 'string') onChunk(o.chunk);
+          } catch (e) {
+            if (e instanceof SyntaxError) continue;
+            throw e;
+          }
+        }
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}

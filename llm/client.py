@@ -4,7 +4,7 @@ Use one via LLM_PROVIDER + API key (or Ollama with no key).
 """
 import os
 import re
-from typing import Optional
+from typing import Iterator, Optional
 
 
 def extract_json(text: str) -> str:
@@ -62,7 +62,48 @@ class LLMClient:
         if self._impl == "gemini":
             return self._gemini(prompt, system_prompt, temperature)
         return self._ollama(prompt, system_prompt, temperature)
-    
+
+    def generate_stream(
+        self, prompt: str, system_prompt: Optional[str] = None, temperature: float = 0.5
+    ) -> Iterator[str]:
+        """
+        Yield text chunks for streaming. Groq uses native streaming; Gemini/Ollama yield full text as one chunk.
+        """
+        if self._impl == "groq":
+            yield from self._groq_stream(prompt, system_prompt, temperature)
+        elif self._impl == "gemini":
+            full = self._gemini(prompt, system_prompt, temperature)
+            if full:
+                yield full
+        else:
+            full = self._ollama(prompt, system_prompt, temperature)
+            if full:
+                yield full
+
+    def _groq_stream(
+        self, prompt: str, system_prompt: Optional[str], temperature: float
+    ) -> Iterator[str]:
+        try:
+            from groq import Groq
+            client = Groq(api_key=self._key)
+            model = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+            msgs = []
+            if system_prompt:
+                msgs.append({"role": "system", "content": system_prompt})
+            msgs.append({"role": "user", "content": prompt})
+            stream = client.chat.completions.create(
+                model=model,
+                messages=msgs,
+                temperature=temperature,
+                stream=True,
+            )
+            for chunk in stream:
+                part = (chunk.choices[0].delta.content or "") if chunk.choices else ""
+                if part:
+                    yield part
+        except Exception as e:
+            raise RuntimeError(f"Groq error: {e}") from e
+
     def _groq(self, prompt: str, system_prompt: Optional[str], temperature: float) -> str:
         try:
             from groq import Groq
