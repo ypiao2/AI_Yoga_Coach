@@ -1,5 +1,10 @@
-// Use '' to hit same origin; Next.js rewrites /api/* to backend (see next.config.js)
-const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? '';
+// Same origin ('') when deployed with FastAPI; set NEXT_PUBLIC_API_URL=http://localhost:8000 when frontend runs on :3000
+function getApiBase(): string {
+  const env = process.env.NEXT_PUBLIC_API_URL ?? '';
+  if (env) return env;
+  if (typeof window !== 'undefined' && window.location?.port === '3000') return 'http://localhost:8000';
+  return '';
+}
 
 /** Training focus options; values match backend TRAINING_FOCUS_MAP keys */
 export const TRAINING_FOCUS_OPTIONS = [
@@ -61,7 +66,7 @@ export type YogaFlowResponse = {
 };
 
 export async function generateYogaFlow(body: YogaFlowRequest): Promise<YogaFlowResponse> {
-  const base = API_BASE || (typeof window !== 'undefined' ? '' : 'http://localhost:8000');
+  const base = getApiBase();
   const res = await fetch(`${base}/api/v1/yoga-flow`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -77,7 +82,7 @@ export async function generateYogaFlow(body: YogaFlowRequest): Promise<YogaFlowR
 export type ChatResponse = { reply: string };
 
 export async function chatYoga(message: string): Promise<ChatResponse> {
-  const base = API_BASE || (typeof window !== 'undefined' ? '' : 'http://localhost:8000');
+  const base = getApiBase();
   const res = await fetch(`${base}/api/v1/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

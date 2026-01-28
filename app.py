@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger(__name__)
@@ -169,15 +171,6 @@ def generate_yoga_flow(user_input: dict) -> dict:
         "structure": structure,
         "sequence": sequence,
         "cues": cues
-    }
-
-
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return {
-        "message": "AI Yoga Coach API v1.0",
-        "architecture": "Body-Aware + Rule-Guided + RAG-Enhanced LLM System"
     }
 
 
@@ -365,6 +358,16 @@ async def yoga_chat(request: ChatRequest):
         return ChatResponse(reply=reply)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# Serve frontend static files when present (single-port deploy). API stays at /api/* and /health.
+_static_dir = Path(__file__).resolve().parent / "static"
+if _static_dir.exists():
+    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="frontend")
+else:
+    @app.get("/")
+    async def root():
+        return {"message": "AI Yoga Coach API v1.0", "architecture": "Body-Aware + Rule-Guided + RAG-Enhanced LLM System"}
 
 
 if __name__ == "__main__":
