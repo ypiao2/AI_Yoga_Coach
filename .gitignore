@@ -36,6 +36,9 @@ ENV/
 .env
 .env.local
 
+# Deployment config (contains API keys; use deploy-config.json.example as template)
+deploy-config.json
+
 # Logs
 *.log
 logs/

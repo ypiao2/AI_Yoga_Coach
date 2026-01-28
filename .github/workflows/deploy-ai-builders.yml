@@ -1,0 +1,60 @@
+# Deploy to ai-builders.space using GitHub Environment variables.
+# Your GROQ_API_KEY, LLM_PROVIDER, GROQ_MODEL (etc.) from the environment are
+# sent as env_vars so the live app has the LLM keys.
+#
+# Required in the "main" environment:
+#   - Environment secret: AI_BUILDER_TOKEN (platform API key)
+#   - Environment variables: GROQ_API_KEY, LLM_PROVIDER, GROQ_MODEL
+name: Deploy to ai-builders.space
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: main
+    steps:
+      - name: Deploy
+        env:
+          DEPLOY_BASE_URL: "https://space.ai-builders.com/backend"
+          REPO_URL: "https://github.com/${{ github.repository }}.git"
+          SERVICE_NAME: "ai-yoga-coach"
+          BRANCH: "main"
+          PORT: "8000"
+          GROQ_API_KEY: ${{ vars.GROQ_API_KEY }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER }}
+          GROQ_MODEL: ${{ vars.GROQ_MODEL }}
+        run: |
+          PAYLOAD=$(jq -n \
+            --arg repo "$REPO_URL" \
+            --arg svc "$SERVICE_NAME" \
+            --arg branch "$BRANCH" \
+            --argjson port "$PORT" \
+            --arg groq "$GROQ_API_KEY" \
+            --arg prov "$LLM_PROVIDER" \
+            --arg model "$GROQ_MODEL" \
+            '{
+              repo_url: $repo,
+              service_name: $svc,
+              branch: $branch,
+              port: $port,
+              env_vars: {
+                GROQ_API_KEY: $groq,
+                LLM_PROVIDER: $prov,
+                GROQ_MODEL: $model
+              }
+            }')
+          echo "Deploying..."
+          HTTP=$(curl -sS -L --post301 -w "%{http_code}" -o /tmp/body -X POST "${DEPLOY_BASE_URL}/v1/deployments" \
+            -H "Authorization: Bearer ${{ secrets.AI_BUILDER_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "$PAYLOAD")
+          cat /tmp/body | jq . 2>/dev/null || cat /tmp/body
+          if [ "$HTTP" != "202" ] && [ "$HTTP" != "200" ]; then
+            echo "Deploy failed with HTTP $HTTP"
+            exit 1
+          fi
+          echo "Deploy submitted (HTTP $HTTP). Allow 5–10 min for provisioning."

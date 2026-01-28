@@ -1,0 +1,11 @@
+{
+  "repo_url": "https://github.com/ypiao2/AI_Yoga_Coach.git",
+  "service_name": "ai-yoga-coach",
+  "branch": "main",
+  "port": 8000,
+  "env_vars": {
+    "GROQ_API_KEY": "your-groq-api-key-here",
+    "LLM_PROVIDER": "groq",
+    "GROQ_MODEL": "llama-3.3-70b-versatile"
+  }
+}
