@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 from fastapi import FastAPI, HTTPException, Request
-from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s", datefmt="%H:%M:%S")
@@ -361,9 +360,29 @@ async def yoga_chat(request: ChatRequest):
 
 
 # Serve frontend static files when present (single-port deploy). API stays at /api/* and /health.
+# Next.js static export uses out/chat.html for /chat; StaticFiles alone looks for "chat" and 404s.
+# So we try path, path.html, path/index.html, then index.html for SPA fallback.
 _static_dir = Path(__file__).resolve().parent / "static"
 if _static_dir.exists():
-    app.mount("/", StaticFiles(directory=str(_static_dir), html=True), name="frontend")
+    @app.get("/{full_path:path}")
+    async def serve_static(full_path: str):
+        if full_path.startswith("api/") or full_path == "health":
+            raise HTTPException(status_code=404, detail="Not found")
+        base = (_static_dir / full_path).resolve()
+        if not str(base).startswith(str(_static_dir.resolve())):
+            raise HTTPException(status_code=404, detail="Not found")
+        # Try: exact file, dir/index.html, path.html (Next.js export), then index.html (SPA fallback)
+        candidates = [base]
+        if base.suffix == "":
+            candidates.append(base / "index.html")
+            candidates.append(base.with_name(base.name + ".html"))
+        else:
+            candidates.append(base / "index.html" if base.is_dir() else None)
+        candidates.append(_static_dir / "index.html")
+        for p in candidates:
+            if p and p.is_file():
+                return FileResponse(p, media_type="text/html" if p.suffix == ".html" else None)
+        raise HTTPException(status_code=404, detail="Not found")
 else:
     @app.get("/")
     async def root():

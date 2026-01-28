@@ -81,14 +81,17 @@ export default function Home() {
           <p className="text-base text-[#6b7280] mt-1">
             Body-Aware · Rule-Guided · RAG-Enhanced
           </p>
-          <Link
-            href="/chat"
-            className="inline-block mt-4 rounded-full bg-[#ec4899]/20 text-[#be185d] font-medium px-4 py-2 text-sm hover:bg-[#ec4899]/30 transition"
-          >
-            Ask about yoga →
-          </Link>
         </div>
       </header>
+
+      <div className="flex justify-center pt-6 pb-2">
+        <Link
+          href="/chat"
+          className="inline-block rounded-full bg-[#ec4899]/20 text-[#be185d] font-medium px-4 py-2 text-sm hover:bg-[#ec4899]/30 transition"
+        >
+          Ask about yoga →
+        </Link>
+      </div>
 
       <main className="max-w-3xl mx-auto px-6 py-8">
         <section className="bg-white rounded-xl border border-[#fce7f3] shadow-sm p-6 mb-8">
